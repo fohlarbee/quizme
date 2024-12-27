@@ -4,7 +4,7 @@ import React from 'react'
 const Placeholder = () => {
   return (
     <div className='poppins flex-col gap-3 p-4 flex justify-center items-center'>
-        <Image src="/empty-folder.png" width={150} height={150} alt='' />
+        <Image src="empty-folder.png" width={150} height={150} alt='' />
         <h2 className='poppins text-2xl font-bold'>Create and Customize a Quiz</h2>
         <span className='poppins text-[13px] font-light'>
             Click below to create a quiz and customize it to your taste
