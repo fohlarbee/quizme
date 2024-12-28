@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import { ContextProvider } from "./context/ContextApi";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -36,9 +37,9 @@ export default function RootLayout({
       <body
         className={`${popins.variable} antialiased`}
       >
-        <header>
-        </header>
-        <main>{children}</main>
+        <ContextProvider>
+           <main>{children}</main>
+         </ContextProvider>
       </body>
     </html>
   );
