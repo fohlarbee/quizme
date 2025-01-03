@@ -13,6 +13,12 @@ interface QuizQuestion {
         correctAttempts: number;
         incorrectAttempts: number;
     };
+};
+interface User {
+    id: number;
+    name: string;
+    isLoggedIn: boolean;
+    experience: number;
 }
 interface QuizContextType {
     allQuizzes: Quiz[];
@@ -21,28 +27,70 @@ interface QuizContextType {
         selectQuizToStart: Quiz | null;
         setSelectQuizToStart: React.Dispatch<React.SetStateAction<Quiz | null>>;
     };
+    timerObj:{
+        timer: number,
+        setTimer: React.Dispatch<React.SetStateAction<number>>
+        parentTimer: number,
+        setParentTimer: React.Dispatch<React.SetStateAction<number>> 
+    },
+    userObj:{
+        user: User
+        setUser: React.Dispatch<React.SetStateAction<User>>
+    }
+    isQuizEnded: boolean,
+    setIsQuizEnded: React.Dispatch<React.SetStateAction<boolean>>,
+
   }
 
 export interface Quiz {
     id: number;
     icon: IconDefinition; // You can specify a more specific type if needed
     quizTitle: string;
+    score: number;
     quizQuestions: QuizQuestion[];
 }
  const GlobalContext = createContext<QuizContextType | undefined>(undefined);
 
 export function ContextProvider({ children }: {children: React.ReactNode}) {
+
+    const defaultUser = {
+        id: 1,
+        name: 'defaultUser',
+        isLoggedIn: true,
+        experience: 0,
+    }
     const [allQuizzes, setAllQuizzes] = useState<Quiz[]>([]);
     const [selectQuizToStart, setSelectQuizToStart] = useState<Quiz | null>(null);
+    const [timer, setTimer] = useState<number>(30);
+    const [parentTimer, setParentTimer] = useState<number>(30);
+    const [isQuizEnded, setIsQuizEnded] = useState<boolean>(false);
+    const [user, setUser] = useState<User>(defaultUser);
+    localStorage.setItem("user", JSON.stringify(defaultUser));
+
+
+    useEffect(() => {
+        const saveUserData = localStorage.getItem('user');
+        if (saveUserData) {
+            setUser(JSON.parse(saveUserData));
+        }
+    }, []);
+
+    // useEffect(() => {
+    // }, [user]);
 
     useEffect(() => {
         setAllQuizzes(quizzesData)
-    }, [])
+    }, []);
+
     return (
         <GlobalContext.Provider value={{
             allQuizzes, 
             setAllQuizzes,
-            quizToStartObj:{selectQuizToStart, setSelectQuizToStart}
+            quizToStartObj:{selectQuizToStart, setSelectQuizToStart},
+            timerObj:{timer, setTimer, parentTimer, setParentTimer},
+            userObj:{user, setUser},
+            isQuizEnded,
+            setIsQuizEnded
             }}>
             {children}
         </GlobalContext.Provider>

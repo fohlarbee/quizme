@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ContextProvider } from "./context/ContextApi";
+import {Toaster} from "react-hot-toast";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -39,6 +40,12 @@ export default function RootLayout({
       >
         <ContextProvider>
            <main>{children}</main>
+           <Toaster
+           toastOptions={{
+            duration:1000,
+            className:'border-2 border-gray-200 shadow-lg border-opacity-5',
+           }}
+           />
          </ContextProvider>
       </body>
     </html>

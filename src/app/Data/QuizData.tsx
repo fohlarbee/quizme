@@ -5,6 +5,7 @@ export const quizzesData = [
         id: 1,
         icon: faCode,
         quizTitle: 'JavaScript Quiz',
+        score: 0,
         quizQuestions:[
             {
                 id: 1,
@@ -15,7 +16,7 @@ export const quizzesData = [
                     'C. stylesheet language',
                     'D. database language'
                 ],
-                correctAnswer: 1,
+                correctAnswer: 0,
                 answeredResult : -1,
                 statistics: {
                     totalAttempts: 3,
@@ -32,7 +33,7 @@ export const quizzesData = [
                     'C. stylesheet language',
                     'D. database language'
                 ],
-                correctAnswer: 1,
+                correctAnswer: 0,
                 answeredResult : -1,
                 statistics: {
                     totalAttempts: 2,
@@ -44,8 +45,8 @@ export const quizzesData = [
                 id: 3,
                 mainQuestion: 'What is Golang',
                 choices:[
-                    'A. programming language',
-                    'B. markup language',
+                    'A. markup language ',
+                    'B. programming language',
                     'C. stylesheet language',
                     'D. database language'
                 ],

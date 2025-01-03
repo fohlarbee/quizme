@@ -4,7 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useGlobalContextProvider from "../context/ContextApi";
 
 export const QuizStartHeader = () => {
-    const { quizToStartObj } = useGlobalContextProvider();
+    const { quizToStartObj, timerObj } = useGlobalContextProvider();
+    const {parentTimer} = timerObj;
     const { selectQuizToStart } = quizToStartObj;
     const quizTitle = selectQuizToStart?.quizTitle;
     const quizQuestions = selectQuizToStart?.quizQuestions;
@@ -32,7 +33,7 @@ export const QuizStartHeader = () => {
                 height={20}
                 icon={faStopwatch}
                 />
-                <span>00:00:30</span>
+                <span>00:00:{parentTimer && parentTimer}</span>
             </div>
 
         </div>
