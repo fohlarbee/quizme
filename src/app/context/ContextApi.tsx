@@ -65,18 +65,23 @@ export function ContextProvider({ children }: {children: React.ReactNode}) {
     const [parentTimer, setParentTimer] = useState<number>(30);
     const [isQuizEnded, setIsQuizEnded] = useState<boolean>(false);
     const [user, setUser] = useState<User>(defaultUser);
-    localStorage.setItem("user", JSON.stringify(defaultUser));
+    // localStorage.setItem("user", JSON.stringify(defaultUser));
 
 
     useEffect(() => {
-        const saveUserData = localStorage.getItem('user');
-        if (saveUserData) {
-            setUser(JSON.parse(saveUserData));
+        if (typeof window !== 'undefined'){
+            const saveUserData = localStorage.getItem('user');
+            if(saveUserData) setUser(JSON.parse(saveUserData));
         }
-    }, []);
+    },[]);
 
-    // useEffect(() => {
-    // }, [user]);
+    useEffect(() => {
+        if (typeof window !== 'undefined'){
+            localStorage.setItem('user', JSON.stringify(user));
+        }
+      
+    }, [user]);
+
 
     useEffect(() => {
         setAllQuizzes(quizzesData)

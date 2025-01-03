@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ContextProvider } from "./context/ContextApi";
