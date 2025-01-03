@@ -1,6 +1,5 @@
 import React from 'react'
 import useGlobalContextProvider from '../context/ContextApi';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faXmarkCircle } from '@fortawesome/free-solid-svg-icons';
@@ -24,7 +23,6 @@ const ScoreComponent: React.FC<ScoreComponentProps> = ({
     const {quizToStartObj, allQuizzes, setIsQuizEnded } = useGlobalContextProvider();
     const {selectQuizToStart} = quizToStartObj;
     const numOfQuestions = selectQuizToStart?.quizQuestions.length;
-    const router = useRouter();
 
     function emojiIconScore(){
         const emojiFaces = [
