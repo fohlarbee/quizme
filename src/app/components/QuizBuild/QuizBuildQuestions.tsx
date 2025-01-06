@@ -1,17 +1,49 @@
 'use client';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { createRef, useRef } from 'react'
+import React, { createRef, useLayoutEffect, useRef } from 'react'
+import toast from 'react-hot-toast';
+import OptionComponent from './Option';
+import CorrectAnswer from './CorrectAnswer';
 
 
-const QuizBuildQuestions = () => {
-  const [quizQuestions, setQuizQuestions] = React.useState(
-    [{id: 1, mainQuestion: '', options: [{id: 1, option: ''}]}]
+interface QuizBuildQuestionProps {
+  focusProp: {
+    focus: boolean;
+    setFocusFirst: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+}
+interface QuizQuestion {
+  id: number;
+  mainQuestion: string;
+  options: string[];
+  correctAnswer: string;
+}
+const QuizBuildQuestions: React.FC<QuizBuildQuestionProps> = ({focusProp}) => {
+  const prefixes = ['A', 'B', 'C', 'D'];
+  // console.log(prefixes.slice(0,2));
+  const {focus, setFocusFirst} = focusProp;
+
+  const [quizQuestions, setQuizQuestions] = React.useState<QuizQuestion[]>(
+    [
+      {id: 1, 
+        mainQuestion: '', 
+        options: prefixes.slice(0, 2).map((prefix) => prefix+ '. '),
+        correctAnswer: ''
+      }]
   );
 
   const endOfListRef = useRef<HTMLDivElement>(null);
   const textAreaRefs = useRef<React.RefObject<HTMLTextAreaElement | null>[]>(quizQuestions.map(() => createRef<HTMLTextAreaElement>()));
 
+  useLayoutEffect(() => {
+      if (endOfListRef.current){
+        // console.log(endOfListRef); 
+        setTimeout(() => {
+          endOfListRef.current?.scrollIntoView({behavior:"smooth"});
+        }, 100);
+      }
+  }, [quizQuestions.length]);
   React.useEffect(() => {
     endOfListRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [quizQuestions]);
@@ -22,23 +54,49 @@ const QuizBuildQuestions = () => {
     const lastTextAreaIndex = quizQuestions.length - 1;
     if (lastTextAreaIndex >= 0) {
       const lastTextArea = textAreaRefs.current[lastTextAreaIndex].current;
-      if (lastTextArea) lastTextArea.focus();
+      if (lastTextArea && focus) lastTextArea.focus();
       
     }
   },[quizQuestions.length, textAreaRefs.current]);
 
+
   function addNewQuestion(){
+    setFocusFirst(false);
+
+    // Verify if the question field is empty or not
+
     const lastIndexQuizQuestions = quizQuestions.length - 1;
-    if (quizQuestions[lastIndexQuizQuestions].mainQuestion.trim().length === 0) {
-      console.log('Please fill the question before adding a new one');
+    if (quizQuestions[lastIndexQuizQuestions].mainQuestion.trim( ).length === 0) {
+      toast.error(`The question ${lastIndexQuizQuestions+ 1} is still empty`); // Show error
+      textAreaRefs.current[lastIndexQuizQuestions].current?.focus();// Set focus back  
       return;
     }
-    const newQuestion = {id: quizQuestions.length + 1, mainQuestion: '', options: [{id: 1, option: ''}]};
+
+    // Check if all previous choices  are filled out before creating a new question
+    
+    for (const option of quizQuestions[lastIndexQuizQuestions].options){
+      const singleOption = option.substring(2);
+      if (singleOption.trim().length === 0) 
+        return toast.error('Please ensure that all previous choices are filled!');
+    }
+
+    // This code validates that the correct answer input field is not empty
+    if (quizQuestions[lastIndexQuizQuestions].correctAnswer.length === 0)
+      return toast.error('Please ensure that the correct answer field is filled out!');
+    // This code creates a new question object and add it to the quiz questions array
+
+    const newQuestion:QuizQuestion = 
+    {
+      id: quizQuestions.length + 1, 
+      mainQuestion: '', 
+      options: prefixes.slice(0, 2).map((prefix) => prefix+ '. '),
+      correctAnswer: ''
+    };
     setQuizQuestions([...quizQuestions, newQuestion]);
     textAreaRefs.current = [...textAreaRefs.current, createRef<HTMLTextAreaElement>()];
   }
 
-  function deleteQuestion(question: { id: number; mainQuestion: string; options: { id: number; option: string; }[] }){
+  function deleteQuestion(question: QuizQuestion){
     
     const filterQuestionToDelete = quizQuestions.filter((q) => q.id !== question.id);
 
@@ -60,9 +118,41 @@ const QuizBuildQuestions = () => {
     });
     setQuizQuestions(updatedQuestions); 
   }
+ 
+  function updateTheOptionsArray(value: string, optionIndex: number, questionIndex: number){
+    // console.log(value, optionIndex, questionIndex);
+
+    const updatedQuestions = quizQuestions.map((q, i) => {
+      if (questionIndex === i){
+        const updatedOptions = q.options.map((o, j) => {
+          if (optionIndex === j){
+            // console.log('value', value);
+
+            return prefixes[j] + '. ' + value;
+          }
+          else {return o}   ;
+        });
+      return {...q, options: updatedOptions};
+
+      }
+      return q;
+    }); 
+
+    setQuizQuestions(updatedQuestions);
+    // console.log('Heres it',quizQuestions);
+  }
+  React.useEffect(() => {
+    // console.log('Updated quizQuestions:', quizQuestions);
+  }, [quizQuestions]);
+
+  function updateCorrectAnswer(text: string, index: number){
+    const questionsCopy = [...quizQuestions];
+    quizQuestions[index].correctAnswer = text
+    setQuizQuestions(questionsCopy);
+  }
    
   return (
-    <div className='p-3 mt-6 justify-between border border-[#15803d] rounded-md shadow-lg border-opacity-5'>
+    <div className='flex flex-col p-3 mt-6 justify-between border border-[#15803d] rounded-md shadow-lg border-opacity-5'>
       <div className='flex gap-2 flex-col w-full'>
         <div className='flex gap-2 items-center'>
           <div className='bg-[#15803d] px-4 py-1 rounded-md text-[#fff]'>2</div>
@@ -72,8 +162,8 @@ const QuizBuildQuestions = () => {
         {quizQuestions.map((question, index) => (
           <div
           key={index}
-          className='border mt-4 border-[#15803d] rounded-md p-4 w-full
-          border-opacity-50 relative justify-center flex'
+          className='border mt-4 border-[#15803d] rounded-md p-4
+          border-opacity-50 relative justify-center flex flex-col'
           ref={quizQuestions.length - 1 === index ? endOfListRef : null}
           >
             <SingleQuestion 
@@ -82,7 +172,17 @@ const QuizBuildQuestions = () => {
             onChange={(e) => {
               handleInputChange(index, e.target.value)
             }}
-            ref={textAreaRefs.current[index]}
+            ref={textAreaRefs.current[index]} 
+            />
+            <OptionComponent
+            questionIndex={index}
+            singleQuestion={question}
+            quizQuestions={quizQuestions}
+            setQuizQuestions={setQuizQuestions}
+            onChangeOption={(value, optionIndex, questionIndex) => {
+              updateTheOptionsArray(value, optionIndex, questionIndex);
+            }}
+            prefixes={prefixes}
             />
             {index !== 0 && (
               <FontAwesomeIcon
@@ -93,14 +193,18 @@ const QuizBuildQuestions = () => {
               onClick={() => deleteQuestion(question)}
               />
             )}
+           <CorrectAnswer onChangeCorrectAnswer={(text) => {updateCorrectAnswer(text, index)}} />
+
           </div>
+
         ))}
+
       </div>
        {/* Add Question Button */}
        <div className='w-full flex justify-center mt-3 '>
           <button
           onClick={addNewQuestion}
-          className='bg-[#15803d] text-[#fff] px-3 py-4 rounded-md text-[15px] w-[210px] poppins '>
+          className='bg-[#15803d] text-[#fff] px-3 py-4 rounded-md text-[15px] w-[210px] poppins shadow-2xl border-opacity-5 '>
             Add a new Question
           </button>
         </div>
@@ -131,9 +235,9 @@ const SingleQuestion =
         value={value}
         onChange={onChange}
         />
-      </div>
+      </div>  
 
-    </div>
+    </div> 
   );
 });
 SingleQuestion.displayName = 'SingleQuestion';

@@ -1,0 +1,37 @@
+.myButton{
+    background: linear-gradient(90deg, #152142, rgb(188,22, 54));
+    width:150px;
+    text-align: center;
+    padding: 16px;
+    color: #fff;
+    font-size: 20px;
+    box-shadow: 0px 3px 9px rgb(red, green, blue);
+    position: relative;
+    overflow: hidden;
+    border-radius: 5%;
+    cursor: pointer;
+    margin: auto;
+}
+
+.rippleEffect{
+    width: 60px;
+    height: 60px;
+    background-color: rgba(255, 255, 255, 0.3);
+    position: absolute;
+    border-radius: 50%;
+
+}
+.rippleEffect.active{
+    animation: rippleEffect 0.9s ease infinite;
+}
+
+@keyframes rippleEffect {
+    0% {
+        opacity:0.5;
+        transform: scale(0); 
+    }
+    100% {
+        opacity:0;
+        transform: scale(20); 
+    }
+}
