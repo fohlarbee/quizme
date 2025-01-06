@@ -6,7 +6,6 @@ const Navbar = () => {
     const {userObj} = useGlobalContextProvider();
     const {user} = userObj;
     const {name, experience, isLoggedIn} = user;
-    console.log(user);
   return (
   <nav className="bg-[#EFF3EA] mx-auto max-w-screen px-4 py-8 sm:px-6 sm:py-7 lg:px-8">
         <div className="flex flex-row items-start gap-4 md:flex-row md:items-center justify-between">

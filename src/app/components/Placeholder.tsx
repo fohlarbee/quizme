@@ -14,7 +14,7 @@ const Placeholder = () => {
 
         </button>
     </div>
-  )
+  ) 
 }
 
 export default Placeholder

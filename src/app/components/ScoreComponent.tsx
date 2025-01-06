@@ -36,7 +36,6 @@ const ScoreComponent: React.FC<ScoreComponentProps> = ({
         return emojiFaces[2];
     }
 
-    console.log(emojiIconScore());
 
     function tryAgain(){
         setIsQuizEnded(false);
@@ -47,7 +46,7 @@ const ScoreComponent: React.FC<ScoreComponentProps> = ({
             setCurrentQuestionIndex(0);
             setSelectedOption(null);
             setScore(0);
-            console.log(selectQuizToStart);
+            // console.log(selectQuizToStart);
     }
 
   return (

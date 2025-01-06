@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import Navbar from "./components/Navbar";
 import QuizesArea from "./components/QuizesArea";
 import useGlobalContextProvider from "./context/ContextApi";
+// import CustomButton from "./components/CustomButton";
 
 export default function Home() {
   const {quizToStartObj} = useGlobalContextProvider();
@@ -18,6 +19,7 @@ export default function Home() {
 
       </header>
      <QuizesArea/>
+     {/* <CustomButton name="Submit "/> */}
     </div>
   );
 }
