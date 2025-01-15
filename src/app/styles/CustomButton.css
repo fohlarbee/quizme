@@ -21,7 +21,7 @@
     border-radius: 50%;
 
 }
-.rippleEffect.active{
+.rippleEffect.active{  
     animation: rippleEffect 0.9s ease infinite;
 }
 

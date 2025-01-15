@@ -3,15 +3,11 @@ import React from 'react';
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import toast from 'react-hot-toast';
+import { QuizQuestion } from '@/app/context/ContextApi';
 // import toast from 'react-hot-toast'; 
 
 
-interface QuizQuestion {
-    id: number;
-    mainQuestion: string;
-    options: string[];
-    correctAnswer: string;
-  }
+
 const OptionComponent = ({
     singleQuestion, 
     questionIndex, 
@@ -72,20 +68,20 @@ const OptionComponent = ({
   }
   
     return (
-      <div className=' border border-gray-300 flex gap-[39px] items-center mt-3 mr-4 rounded-md'>
-        <div className='text-[15px] text-center items-center justify-center p-2'>
+      <div className=' border border-gray-300 flex gap-[25px] items-center mt-3 mr-4 rounded-md w-full'>
+        <div className='text-[15px] text-center items-center justify-center ml-2 '>
             <h3 className='text-center'>Options</h3>
         </div>
-        <div className='border border-gray-200 rounded-md p-3 w-full'>
+        <div className='border border-gray-200 rounded-md p-3 w-full max-w-full overflow-x-auto'>
           {/* Choices Area */}
           {options.map((o, i) => (
-             <div key={i} className='flex gap-2 items-center mt-3 relative'>
+             <div key={i} className='flex gap-2 items-center mt-3'>
                 <span>{alphas[i]}:</span>
                 <input 
                   type="text" 
                   placeholder={`Add Your ${positions[i]} Option`}
   
-                  className='border text-[13px] border-gray-200 p-2 w-full rounded-md outline-none pr-10'
+                  className='border text-[13px] border-gray-200 p-2 w-full  rounded-md outline-none sm:pr-6 md:pr-10'
                   onChange={(e) => handleOptionChangeInput(e, i)}
                   value={o.substring(prefixes[i].length + 2)} 
                   />

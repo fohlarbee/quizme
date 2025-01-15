@@ -9,9 +9,18 @@ import toast from 'react-hot-toast'
 
 
 export const QuizStartQuestions = () => {
-    const { allQuizzes, quizToStartObj, setAllQuizzes,timerObj, isQuizEnded, setIsQuizEnded } = useGlobalContextProvider();
+    const { 
+        allQuizzes, 
+        quizToStartObj, 
+        setAllQuizzes,
+        timerObj, 
+        isQuizEnded, 
+        setIsQuizEnded,
+        userXpObj
+     } = useGlobalContextProvider();
     const {timer, setTimer, setParentTimer}  = timerObj
     const { selectQuizToStart } = quizToStartObj;
+    const { setUserXp } = userXpObj;
     const quizQuestions = selectQuizToStart?.quizQuestions;
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -47,7 +56,15 @@ export const QuizStartQuestions = () => {
         if (timer === 0 && !isQuizEnded){
             
             // update allquizes
+            
             const currentQuizzes = [...allQuizzes];
+            if (indexOfSelectedQuiz === null){
+                return;
+                // const newQuizIndex = currentQuizzes.findIndex(
+                //     (quiz) => quiz.id === selectQuizToStart!.id);
+                // setIndexOfSelectedQuiz(newQuizIndex);
+            }
+            console.log(allQuizzes, indexOfSelectedQuiz);
             currentQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
             .statistics.totalAttempts += 1;
 
@@ -150,11 +167,15 @@ export const QuizStartQuestions = () => {
         
         // update the correct attempts
         allQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
-        .statistics.correctAttempts+= 1;
+        .statistics.correctAttempts += 1;
 
         //incement the score by 1
-        const value = allQuizzes[indexOfSelectedQuiz!].score += 1;
-        setScore(value);
+        // const value = allQuizzes[indexOfSelectedQuiz!].score += 1;
+        setScore((prevState) => prevState + 1);
+
+        //Increment userXP
+        toast.success('Correct Answer!');
+        setUserXp((prevState) => prevState + 1);
         
         //is quiz ended 
         if ((!quizQuestions || currentQuestionIndex === quizQuestions.length - 1) &&
@@ -165,6 +186,7 @@ export const QuizStartQuestions = () => {
             setTimer(0);
             clearInterval(interval);
             setIsQuizEnded(true);
+            // console.log(isQuizEnded);
             return;
         } 
 
@@ -211,7 +233,7 @@ export const QuizStartQuestions = () => {
         :
         (
             <>
-            <div className='poppins rounded-xl m-9 md:m-0 md:w-9/12 border border-[#5DB996] py-5 shadow-lg border-opacity-5' >
+            <div className='poppins rounded-xl m-9 w-full md:m-0 lg:w-9/12 border border-[#5DB996] py-5 shadow-lg border-opacity-5' >
             
             <div className='flex ml-11 mb-5 items-center gap-2'>
                 <div className='bg-green-700 flex justify-center items-center rounded-md w-11 h-11 text-[#fff] p-3'>
@@ -225,7 +247,7 @@ export const QuizStartQuestions = () => {
             </div>
             <div 
             className='flex flex-col gap-2 group'>
-                {quizQuestions && quizQuestions[currentQuestionIndex].choices.map((option, index) => (
+                {quizQuestions && quizQuestions[currentQuestionIndex].options.map((option, index) => (
                      <div
                      onClick={() => selectOptionFunction(index)}
 

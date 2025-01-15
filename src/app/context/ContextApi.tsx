@@ -1,11 +1,12 @@
 "use client"
-import { createContext, useContext, useEffect, useState } from "react";
+import React from "react";
+import { createContext, useContext, useState } from "react";
 import { quizzesData } from "../Data/QuizData";
-import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-interface QuizQuestion {
+import { faCode, IconDefinition } from "@fortawesome/free-solid-svg-icons";
+export interface QuizQuestion {
     id: number;
     mainQuestion: string;
-    choices: string[];
+    options: string[];
     correctAnswer: number;
     answeredResult: number;
     statistics: {
@@ -14,7 +15,7 @@ interface QuizQuestion {
         incorrectAttempts: number;
     };
 };
-interface User {
+export interface User {
     id: number;
     name: string;
     isLoggedIn: boolean;
@@ -39,12 +40,36 @@ interface QuizContextType {
     }
     isQuizEnded: boolean,
     setIsQuizEnded: React.Dispatch<React.SetStateAction<boolean>>,
+    openBoxToggle: {
+        openIconBox: boolean,
+        setOpenIconBox: React.Dispatch<React.SetStateAction<boolean>>
+    },
+    selectedIconObj: {
+        selectedIcon: {faIcon: IconDefinition},
+        setSelectedIcon: React.Dispatch<React.SetStateAction<{faIcon: IconDefinition}>>
+    },
+    dropDownToggleObj: {
+        dropDownToggle: boolean,
+        setDropDownToggle: React.Dispatch<React.SetStateAction<boolean>> 
+    },
+    ellipsisObj:{
+        ellipsis: {x: number, y: number},
+        setEllipsis: React.Dispatch<React.SetStateAction<{x: number, y: number}>>
+    },
+    selectedQuizObj:{
+        selectedQuiz:Quiz | null ,
+        setSelectedQuiz:React.Dispatch<React.SetStateAction<Quiz | null>>
+    },
+    userXpObj:{
+        userXp: number,
+        setUserXp: React.Dispatch<React.SetStateAction<number>>
+    }
 
   }
 
 export interface Quiz {
     id: number;
-    icon: IconDefinition; // You can specify a more specific type if needed
+    icon: IconDefinition; 
     quizTitle: string;
     score: number;
     quizQuestions: QuizQuestion[];
@@ -65,17 +90,32 @@ export function ContextProvider({ children }: {children: React.ReactNode}) {
     const [parentTimer, setParentTimer] = useState<number>(30);
     const [isQuizEnded, setIsQuizEnded] = useState<boolean>(false);
     const [user, setUser] = useState<User>(defaultUser);
-    // localStorage.setItem("user", JSON.stringify(defaultUser));
+    const [openIconBox, setOpenIconBox] = useState<boolean>(false);
+    const [selectedIcon, setSelectedIcon] = useState({faIcon:faCode});
+    const [dropDownToggle, setDropDownToggle] = useState<boolean>(false);
+    const [ellipsis, setEllipsis] = useState({x: 0, y:0});
+    const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
+    const [userXp, setUserXp] = useState<number>(0);
 
+    React.useEffect(() => {
+        if (typeof window !== 'undefined'){
+            const saveUserData = localStorage.getItem('user');
+            const user =  saveUserData ? JSON.parse(saveUserData).experience : 0;
+            setUser((prevUser) => ({...prevUser, experience: user.experience}));
+        }
+       
+    }, []);
+     
 
-    useEffect(() => {
+ 
+    React.useEffect(() => {
         if (typeof window !== 'undefined'){
             const saveUserData = localStorage.getItem('user');
             if(saveUserData) setUser(JSON.parse(saveUserData));
         }
     },[]);
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (typeof window !== 'undefined'){
             localStorage.setItem('user', JSON.stringify(user));
         }
@@ -83,10 +123,23 @@ export function ContextProvider({ children }: {children: React.ReactNode}) {
     }, [user]);
 
 
-    useEffect(() => {
+    React.useEffect(() => {
         setAllQuizzes(quizzesData)
     }, []);
 
+    React.useEffect(() => {
+        if (selectedQuiz) setSelectedIcon({faIcon: selectedQuiz.icon});
+        else setSelectedIcon({faIcon: faCode});
+
+        }, [selectedQuiz]);
+    
+    React.useEffect(() => {
+        setUser((prevUser) => ({
+            ...prevUser,
+            experience: userXp
+        }))
+    }, [userXp]);
+        
     return (
         <GlobalContext.Provider value={{
             allQuizzes, 
@@ -95,8 +148,14 @@ export function ContextProvider({ children }: {children: React.ReactNode}) {
             timerObj:{timer, setTimer, parentTimer, setParentTimer},
             userObj:{user, setUser},
             isQuizEnded,
-            setIsQuizEnded
-            }}>
+            setIsQuizEnded,
+            openBoxToggle: {openIconBox, setOpenIconBox},
+            selectedIconObj: {selectedIcon, setSelectedIcon},
+            dropDownToggleObj: {dropDownToggle, setDropDownToggle},
+            ellipsisObj: {ellipsis, setEllipsis},
+            selectedQuizObj: {selectedQuiz, setSelectedQuiz},
+            userXpObj: {userXp, setUserXp}
+            }}>  
             {children}
         </GlobalContext.Provider>
     )
@@ -104,7 +163,7 @@ export function ContextProvider({ children }: {children: React.ReactNode}) {
 export default function useGlobalContextProvider(){
     const allQuizzes = useContext(GlobalContext);
     if (!allQuizzes) {
-        throw new Error('useGlobalContextProvider must be used within a QuizProvider');
+        throw new Error('useGlobalContextProvider must be used a{}ithin a QuizProvider');
       }
     return allQuizzes;
 }

@@ -5,33 +5,23 @@ import React, { createRef, useLayoutEffect, useRef } from 'react'
 import toast from 'react-hot-toast';
 import OptionComponent from './Option';
 import CorrectAnswer from './CorrectAnswer';
+import { QuizQuestion } from '@/app/context/ContextApi';
 
 
 interface QuizBuildQuestionProps {
   focusProp: {
     focus: boolean;
     setFocusFirst: React.Dispatch<React.SetStateAction<boolean>>;
-  };
+  },
+  quizQuestions: QuizQuestion[];
+  setQuizQuestions: React.Dispatch<React.SetStateAction<QuizQuestion[]>>;
 }
-interface QuizQuestion {
-  id: number;
-  mainQuestion: string;
-  options: string[];
-  correctAnswer: string;
-}
-const QuizBuildQuestions: React.FC<QuizBuildQuestionProps> = ({focusProp}) => {
+
+const QuizBuildQuestions: React.FC<QuizBuildQuestionProps> = ({focusProp, quizQuestions, setQuizQuestions}) => {
   const prefixes = ['A', 'B', 'C', 'D'];
-  // console.log(prefixes.slice(0,2));
   const {focus, setFocusFirst} = focusProp;
 
-  const [quizQuestions, setQuizQuestions] = React.useState<QuizQuestion[]>(
-    [
-      {id: 1, 
-        mainQuestion: '', 
-        options: prefixes.slice(0, 2).map((prefix) => prefix+ '. '),
-        correctAnswer: ''
-      }]
-  );
+ 
 
   const endOfListRef = useRef<HTMLDivElement>(null);
   const textAreaRefs = useRef<React.RefObject<HTMLTextAreaElement | null>[]>(quizQuestions.map(() => createRef<HTMLTextAreaElement>()));
@@ -81,7 +71,7 @@ const QuizBuildQuestions: React.FC<QuizBuildQuestionProps> = ({focusProp}) => {
     }
 
     // This code validates that the correct answer input field is not empty
-    if (quizQuestions[lastIndexQuizQuestions].correctAnswer.length === 0)
+    if (quizQuestions[lastIndexQuizQuestions].correctAnswer === -1 || '')
       return toast.error('Please ensure that the correct answer field is filled out!');
     // This code creates a new question object and add it to the quiz questions array
 
@@ -90,7 +80,13 @@ const QuizBuildQuestions: React.FC<QuizBuildQuestionProps> = ({focusProp}) => {
       id: quizQuestions.length + 1, 
       mainQuestion: '', 
       options: prefixes.slice(0, 2).map((prefix) => prefix+ '. '),
-      correctAnswer: ''
+      correctAnswer: -1,
+      answeredResult: -1,
+      statistics:{
+        totalAttempts: 0,
+        correctAttempts: 0,
+        incorrectAttempts: 0
+      }
     };
     setQuizQuestions([...quizQuestions, newQuestion]);
     textAreaRefs.current = [...textAreaRefs.current, createRef<HTMLTextAreaElement>()];
@@ -139,15 +135,26 @@ const QuizBuildQuestions: React.FC<QuizBuildQuestionProps> = ({focusProp}) => {
     }); 
 
     setQuizQuestions(updatedQuestions);
-    // console.log('Heres it',quizQuestions);
   }
   React.useEffect(() => {
-    // console.log('Updated quizQuestions:', quizQuestions);
+    console.log(quizQuestions);
   }, [quizQuestions]);
 
-  function updateCorrectAnswer(text: string, index: number){
+  function updateCorrectAnswer(optionIndex: number, questionIndex: number){
     const questionsCopy = [...quizQuestions];
-    quizQuestions[index].correctAnswer = text
+
+
+    ///////////////Check this
+    // const optionquestionIndex = quizQuestions[questionIndex].options.findIndex(option => option.startsWith(text));
+    // if (optionIndex === -1) {
+    //   return toast.error('Please enter a valid option as the correct answer');
+    // };
+    // if (text === '-1') {
+    //   const correctAnswerInput = document.querySelector(`input[value="${text}"]`) as HTMLInputElement;
+    //   if (correctAnswerInput) correctAnswerInput.value = '';
+    //   return toast.error('Correct answer cannot be -1');
+    // }
+    quizQuestions[questionIndex].correctAnswer = optionIndex;
     setQuizQuestions(questionsCopy);
   }
    
@@ -193,7 +200,7 @@ const QuizBuildQuestions: React.FC<QuizBuildQuestionProps> = ({focusProp}) => {
               onClick={() => deleteQuestion(question)}
               />
             )}
-           <CorrectAnswer onChangeCorrectAnswer={(text) => {updateCorrectAnswer(text, index)}} />
+           <CorrectAnswer singleQuestion={question} quizQuestions={quizQuestions} index={index} onChangeCorrectAnswer={(optionIndex) => {updateCorrectAnswer(optionIndex, index)}} />
 
           </div>
 
