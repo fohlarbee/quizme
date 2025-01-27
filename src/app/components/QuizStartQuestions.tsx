@@ -28,6 +28,8 @@ export const QuizStartQuestions = () => {
     const {user,  setUser} = userObj; 
     let interval: NodeJS.Timeout;
 
+    console.log('what I need',quizQuestions, currentQuestionIndex);
+
     async function saveDataIntoDb(){
 
         // Get the current quiz id
@@ -41,11 +43,13 @@ export const QuizStartQuestions = () => {
             body: JSON.stringify({updateQuizQuestions: allQuizzes[indexOfSelectedQuiz!].quizQuestions}),
             cache: 'no-cache' as RequestCache,
         };
+        console.log(allQuizzes[indexOfSelectedQuiz!].quizQuestions);
         try {
             const req = await fetch(url, options);
             if (!req.ok) return toast.error('An error occurred while saving the quiz data');
         } catch (error) {
-             throw new Error(`An error occurred while saving the quiz data: ${error}`);
+            console.log(error  );
+            return toast.error('An error occurred while saving the quiz data');
 
         }
        
@@ -88,6 +92,7 @@ export const QuizStartQuestions = () => {
                 //     (quiz) => quiz.id === selectQuizToStart!.id);
                 // setIndexOfSelectedQuiz(newQuizIndex);
             }
+            console.log(allQuizzes, indexOfSelectedQuiz);
             currentQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
             .statistics.totalAttempts += 1;
 
@@ -130,6 +135,7 @@ export const QuizStartQuestions = () => {
         setIndexOfSelectedQuiz(quizIndexFound);
 
     },[]);
+    // console.log(allQuizzes);
 
     useEffect(() => {
         if (isQuizEnded){
@@ -197,11 +203,7 @@ export const QuizStartQuestions = () => {
         setScore((prevState) => prevState + 1);
 
 
-          // Print a correct answer, increment the currentIndex and move to the next question
-          toast.success('Correct Answer!');
-          await addExperience();
-          setSelectedOption(null);
-          setCurrentQuestionIndex((current) => current + 1);
+          
         
         //is quiz ended 
         if ((!quizQuestions || currentQuestionIndex === quizQuestions.length - 1) &&
@@ -216,6 +218,11 @@ export const QuizStartQuestions = () => {
             return;
         } 
 
+        // Print a correct answer, increment the currentIndex and move to the next question
+        toast.success('Correct Answer!');
+        await addExperience();
+        setSelectedOption(null);
+        setCurrentQuestionIndex((current) => current + 1);
       
 
     }
@@ -241,8 +248,10 @@ export const QuizStartQuestions = () => {
     }
 
     async function addExperience  (){
+        console.log('add exp running');
         const userCopy = user;
         userCopy.experience = userCopy.experience + 1;
+        console.log('newUserCopy, userCopy');
 
         const url = `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/user?id=${userCopy.id}`;
         const options = {
@@ -256,9 +265,11 @@ export const QuizStartQuestions = () => {
         try {
             const response = await fetch(url, options);
             if (!response.ok) return toast.error('An error occurred while updating the user experience');
+            console.log('new user copy', userCopy);
             setUser(userCopy); 
         } catch (error) {
-            return toast.error(`An error occurred while updating the user experience ${error}`);
+            console.log(error);
+            return toast.error('An error occurred while updating the user experience');
             
         }
     }
@@ -281,16 +292,17 @@ export const QuizStartQuestions = () => {
             <>
             <div className='poppins rounded-xl m-9 w-full md:m-0 lg:w-9/12 border border-[#5DB996] py-5 shadow-lg border-opacity-5' >
             
-            <div className='flex ml-11 mb-5 items-center gap-2'>
-                <div className='bg-green-700 flex justify-center items-center rounded-md w-11 h-11 text-[#fff] p-3'>
-                    {currentQuestionIndex + 1}
+            {quizQuestions && quizQuestions[currentQuestionIndex] && (
+                <div className='flex ml-11 mb-5 items-center gap-2'>
+                    <div className='bg-green-700 flex justify-center items-center rounded-md w-11 h-11 text-[#fff] p-3'>
+                        {currentQuestionIndex + 1}
+                    </div>
+                    <p className="mr-3">
+                        {quizQuestions[currentQuestionIndex].mainQuestion}
+                        <br/>
+                    </p>
                 </div>
-                <p className="mr-3">
-                    {quizQuestions && quizQuestions[currentQuestionIndex].mainQuestion}
-                    <br/>
-                </p>
-
-            </div>
+            )}
             <div 
             className='flex flex-col gap-2 group'>
                 {quizQuestions && quizQuestions[currentQuestionIndex].options.map((option, index) => (
