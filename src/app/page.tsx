@@ -1,25 +1,45 @@
 "use client";
-import { useEffect } from "react";
+import React from "react";
 import Navbar from "./components/Navbar";
 import QuizesArea from "./components/QuizesArea";
 import useGlobalContextProvider from "./context/ContextApi";
-// import CustomButton from "./components/CustomButton";
+import CustomNavbar from "./components/CustomNavbar";
+// import CustomNavbar from "./components/CustomNavbar";
 
 export default function Home() {
   const {quizToStartObj} = useGlobalContextProvider();
   const {setSelectQuizToStart} = quizToStartObj;
 
-  useEffect(() => {
+
+  // const [isClicked, setIsClicked] = useState(false);
+
+  // function handleClick(){
+  //   setIsClicked(true);
+
+  // } 
+  // function closeToast(){
+  //   setIsClicked(false);
+  // 
+
+  
+
+  React.useEffect(() => {
     setSelectQuizToStart(null);
   },[])
-  return (
-    <div className="">
-      <header>
-      <Navbar/>
+  return ( 
 
-      </header>
-     <QuizesArea/>
-     {/* <CustomButton name="Submit "/> */}
-    </div>
+      <div className="w-full relative">
+        <header>
+        <Navbar/>
+
+        </header>
+      {/* <DropDown  />  */}
+
+      <QuizesArea/>
+      <CustomNavbar/>
+
+      {/* {isClicked ?(<CustomToast open={isClicked} onClose={closeToast}  />):null} */}
+      </div>
+
   );
 }

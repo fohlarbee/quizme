@@ -38,20 +38,19 @@ const ScoreComponent: React.FC<ScoreComponentProps> = ({
 
 
     function tryAgain(){
-        setIsQuizEnded(false);
         const newQuizIndex = allQuizzes.findIndex(
             (quiz) => quiz.id === selectQuizToStart!.id);
         
             setIndexOfQuizSelected(newQuizIndex);
-            setCurrentQuestionIndex(0);
+            setCurrentQuestionIndex(0);  
             setSelectedOption(null);
             setScore(0);
-            // console.log(selectQuizToStart);
+            setIsQuizEnded(false);
     }
 
   return (
     <div 
-    className='flex items-center rounded-md w-full md:w-[450px] md:h-[450px] justify-center
+    className='flex items-center rounded-md w-9/12 md:w-[450px] md:h-[450px] justify-center
      border-sm py-5 px-4 shadow-lg border-opacity-5'>
         <div className='flex gap-4 items-center justify-center flex-col'>
             <Image src={`/${emojiIconScore()}`} width={100} height={100} alt=''/>

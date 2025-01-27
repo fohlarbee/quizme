@@ -9,7 +9,15 @@ import toast from 'react-hot-toast'
 
 
 export const QuizStartQuestions = () => {
-    const { allQuizzes, quizToStartObj, setAllQuizzes,timerObj, isQuizEnded, setIsQuizEnded } = useGlobalContextProvider();
+    const { 
+        allQuizzes, 
+        quizToStartObj, 
+        setAllQuizzes,
+        timerObj, 
+        isQuizEnded, 
+        setIsQuizEnded,
+        userObj
+     } = useGlobalContextProvider();
     const {timer, setTimer, setParentTimer}  = timerObj
     const { selectQuizToStart } = quizToStartObj;
     const quizQuestions = selectQuizToStart?.quizQuestions;
@@ -17,7 +25,32 @@ export const QuizStartQuestions = () => {
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
     const [indexOfSelectedQuiz, setIndexOfSelectedQuiz] = useState<number | null>(null);
     const  [score, setScore] = useState<number>(0);
+    const {user,  setUser} = userObj; 
     let interval: NodeJS.Timeout;
+
+    async function saveDataIntoDb(){
+
+        // Get the current quiz id
+        const id = selectQuizToStart?.id;
+        const url = `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/quizzes?id=${id}`;
+        const options = {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({updateQuizQuestions: allQuizzes[indexOfSelectedQuiz!].quizQuestions}),
+            cache: 'no-cache' as RequestCache,
+        };
+        try {
+            const req = await fetch(url, options);
+            if (!req.ok) return toast.error('An error occurred while saving the quiz data');
+        } catch (error) {
+             throw new Error(`An error occurred while saving the quiz data: ${error}`);
+
+        }
+       
+
+    }
 
     function startTimer(){
         clearInterval(interval);
@@ -47,7 +80,14 @@ export const QuizStartQuestions = () => {
         if (timer === 0 && !isQuizEnded){
             
             // update allquizes
+            
             const currentQuizzes = [...allQuizzes];
+            if (indexOfSelectedQuiz === null){
+                return;
+                // const newQuizIndex = currentQuizzes.findIndex(
+                //     (quiz) => quiz.id === selectQuizToStart!.id);
+                // setIndexOfSelectedQuiz(newQuizIndex);
+            }
             currentQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
             .statistics.totalAttempts += 1;
 
@@ -90,7 +130,6 @@ export const QuizStartQuestions = () => {
         setIndexOfSelectedQuiz(quizIndexFound);
 
     },[]);
-    // console.log(allQuizzes);
 
     useEffect(() => {
         if (isQuizEnded){
@@ -99,20 +138,21 @@ export const QuizStartQuestions = () => {
                 question.answeredResult = -1;
             });
             toast.custom('Quiz Ended');
+            saveDataIntoDb();
             return;
 
         }
     }, [quizQuestions, isQuizEnded]);
 
 
-    function handleNextQuestion(){
+    async function handleNextQuestion(){
         if(allQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
             .answeredResult === -1){
                 toast.custom('Please select an answer');
                 return;
         }
 
-        // update the stattistics of the question
+        // update the statistics of the question
         // *************************************
         // update the total attempts
         allQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
@@ -150,11 +190,18 @@ export const QuizStartQuestions = () => {
         
         // update the correct attempts
         allQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
-        .statistics.correctAttempts+= 1;
+        .statistics.correctAttempts += 1;
 
         //incement the score by 1
-        const value = allQuizzes[indexOfSelectedQuiz!].score += 1;
-        setScore(value);
+        // const value = allQuizzes[indexOfSelectedQuiz!].score += 1;
+        setScore((prevState) => prevState + 1);
+
+
+          // Print a correct answer, increment the currentIndex and move to the next question
+          toast.success('Correct Answer!');
+          await addExperience();
+          setSelectedOption(null);
+          setCurrentQuestionIndex((current) => current + 1);
         
         //is quiz ended 
         if ((!quizQuestions || currentQuestionIndex === quizQuestions.length - 1) &&
@@ -162,16 +209,14 @@ export const QuizStartQuestions = () => {
         .answeredResult === allQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
         .correctAnswer){
             toast.success('Correct Answer!');
+            await addExperience()
             setTimer(0);
             clearInterval(interval);
             setIsQuizEnded(true);
             return;
         } 
 
-        // Print a correct answer, increment the currentIndex and move to the next question
-        toast.success('Correct Answer!');
-        setSelectedOption(null);
-        setCurrentQuestionIndex((current) => current + 1);
+      
 
     }
 
@@ -194,6 +239,29 @@ export const QuizStartQuestions = () => {
         setAllQuizzes(currentAllQuizes);
         
     }
+
+    async function addExperience  (){
+        const userCopy = user;
+        userCopy.experience = userCopy.experience + 1;
+
+        const url = `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/user?id=${userCopy.id}`;
+        const options = {
+            method: 'PUT',
+            headers:{
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({updateUser: userCopy})
+        }
+
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) return toast.error('An error occurred while updating the user experience');
+            setUser(userCopy); 
+        } catch (error) {
+            return toast.error(`An error occurred while updating the user experience ${error}`);
+            
+        }
+    }
     return (
         <>
         {isQuizEnded ? (
@@ -211,7 +279,7 @@ export const QuizStartQuestions = () => {
         :
         (
             <>
-            <div className='poppins rounded-xl m-9 md:m-0 md:w-9/12 border border-[#5DB996] py-5 shadow-lg border-opacity-5' >
+            <div className='poppins rounded-xl m-9 w-full md:m-0 lg:w-9/12 border border-[#5DB996] py-5 shadow-lg border-opacity-5' >
             
             <div className='flex ml-11 mb-5 items-center gap-2'>
                 <div className='bg-green-700 flex justify-center items-center rounded-md w-11 h-11 text-[#fff] p-3'>
@@ -225,7 +293,7 @@ export const QuizStartQuestions = () => {
             </div>
             <div 
             className='flex flex-col gap-2 group'>
-                {quizQuestions && quizQuestions[currentQuestionIndex].choices.map((option, index) => (
+                {quizQuestions && quizQuestions[currentQuestionIndex].options.map((option, index) => (
                      <div
                      onClick={() => selectOptionFunction(index)}
 
