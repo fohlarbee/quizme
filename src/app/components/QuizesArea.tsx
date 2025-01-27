@@ -17,7 +17,7 @@ const QuizesArea: React.FC = () => {
       <div>
         {user.isLoggedIn ? (
           <>
-            {allQuizzes.length === 0 ? (
+            {allQuizzes && allQuizzes.length === 0 ? (
               <Placeholder />
             ) : (
               <div className=''>
@@ -25,7 +25,7 @@ const QuizesArea: React.FC = () => {
                 <h2 className='text-xl font-bold'>My Quizzes</h2>
                 <div className='mt-6 flex gap-2 flex-wrap w-full flex-row items-center justify-center'>
                   <div className='flex flex-wrap gap-2 flex-row w-full'>
-                    {allQuizzes.map((quiz, index) => (
+                    {allQuizzes && allQuizzes.map((quiz, index) => (
                       <Quizcard key={index} quiz={quiz} />
                     ))}
                     <div

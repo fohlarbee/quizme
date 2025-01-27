@@ -1,8 +1,9 @@
 import React from 'react';
-import { faEllipsis, faPlay } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useGlobalContextProvider, { Quiz } from '../context/ContextApi';
 import Link from 'next/link';
+import { IconsData } from '../Data/IconsData';
+import { faEllipsis, faPlay } from '@fortawesome/free-solid-svg-icons';
  
 function successRate(quiz: Quiz) {
   let correctQuestions = 0;
@@ -17,6 +18,12 @@ function successRate(quiz: Quiz) {
   successRate = Math.ceil((correctQuestions / totalAttempts) * 100);
   return successRate;
 }
+// const iconMap: { [key: string]: IconDefinition } = {
+//   faBook,
+//   faFlask,
+//   faHistory,
+//   faGlobe,
+// };
 
 const Quizcard = ({ quiz }: { quiz: Quiz }) => {
   const { quizTitle, quizQuestions, icon } = quiz;
@@ -47,6 +54,12 @@ const Quizcard = ({ quiz }: { quiz: Quiz }) => {
     setDropDownToggle(true);
     setSelectedQuiz(quiz);
   }
+  // Find the matching icon from IconsData
+  const matchedIcon = icon ? IconsData.find((iconData) => iconData.name === icon)?.faIcon : null;
+  if (!matchedIcon) {
+    console.warn(`No matching icon found for iconName: ${icon}`);
+  }
+
 
   return (
     <div className=' sm:flex-[1_0_30%] md::flex-[2_2_30%] flex-shrink-0 rounded-[10px] flex flex-col gap-2 border border-gray-300 bg-white p-4 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 h-[320px] p'>
@@ -55,8 +68,9 @@ const Quizcard = ({ quiz }: { quiz: Quiz }) => {
           <FontAwesomeIcon onClick={(e) => openDropDownMenu(e)} icon={faEllipsis} className='text-white' />
 
         </div>
-        <FontAwesomeIcon 
-        icon={icon}  width={50} height={50} className='md:w-16 md:h-16  w-8 h-8 text-[#fff]' />
+        {matchedIcon && (
+          <FontAwesomeIcon icon={matchedIcon} width={50} height={50} className='md:w-16 md:h-16 w-8 h-8 text-[#fff]' />
+        )}
       </div>
       <div className='flex flex-col gap-2'>
         <h3 className='text-lg font-bold text-gray-900'>{quizTitle}</h3>

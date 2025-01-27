@@ -28,7 +28,6 @@ const QuizBuildQuestions: React.FC<QuizBuildQuestionProps> = ({focusProp, quizQu
 
   useLayoutEffect(() => {
       if (endOfListRef.current){
-        // console.log(endOfListRef); 
         setTimeout(() => {
           endOfListRef.current?.scrollIntoView({behavior:"smooth"});
         }, 100);
@@ -43,11 +42,11 @@ const QuizBuildQuestions: React.FC<QuizBuildQuestionProps> = ({focusProp, quizQu
     // Focus the last textArea when a new question is added or if it exists
     const lastTextAreaIndex = quizQuestions.length - 1;
     if (lastTextAreaIndex >= 0) {
-      const lastTextArea = textAreaRefs.current[lastTextAreaIndex].current;
+      const lastTextArea = textAreaRefs.current[lastTextAreaIndex].current
       if (lastTextArea && focus) lastTextArea.focus();
       
     }
-  },[quizQuestions.length, textAreaRefs.current]);
+  },[quizQuestions.length, focus]);
 
 
   function addNewQuestion(){
@@ -90,6 +89,7 @@ const QuizBuildQuestions: React.FC<QuizBuildQuestionProps> = ({focusProp, quizQu
     };
     setQuizQuestions([...quizQuestions, newQuestion]);
     textAreaRefs.current = [...textAreaRefs.current, createRef<HTMLTextAreaElement>()];
+    setFocusFirst(true);
   }
 
   function deleteQuestion(question: QuizQuestion){
@@ -116,13 +116,11 @@ const QuizBuildQuestions: React.FC<QuizBuildQuestionProps> = ({focusProp, quizQu
   }
  
   function updateTheOptionsArray(value: string, optionIndex: number, questionIndex: number){
-    // console.log(value, optionIndex, questionIndex);
 
     const updatedQuestions = quizQuestions.map((q, i) => {
       if (questionIndex === i){
         const updatedOptions = q.options.map((o, j) => {
           if (optionIndex === j){
-            // console.log('value', value);
 
             return prefixes[j] + '. ' + value;
           }
@@ -137,7 +135,6 @@ const QuizBuildQuestions: React.FC<QuizBuildQuestionProps> = ({focusProp, quizQu
     setQuizQuestions(updatedQuestions);
   }
   React.useEffect(() => {
-    console.log(quizQuestions);
   }, [quizQuestions]);
 
   function updateCorrectAnswer(optionIndex: number, questionIndex: number){

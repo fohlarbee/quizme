@@ -105,7 +105,8 @@ const Page = () => {
 
     const quizNavBarProps = {
       quizQuestions,
-      newQuiz
+      newQuiz,
+      setNewQuiz
     }
   return (
     <div className='relative mt-16 poppins mx-12'>

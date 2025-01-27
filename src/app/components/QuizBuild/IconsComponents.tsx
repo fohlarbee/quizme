@@ -13,9 +13,11 @@ const IconsComponents = () => {
     function handleClickedIcon(iconIndex: number){
         const updatedIcons = allIcons.map((icon, i) => {
             if(i === iconIndex){
+
                 setSelectedIcon((prevState) => {
                     const copyIconState = prevState;
-                    copyIconState.faIcon  = icon.faIcon;
+                    copyIconState.faIcon =  icon.name
+                    // copyIconState.faIcon = 'fa' + copyIconState.faIcon.split('fa')[1].split(/(?=[A-Z])/).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
                     return copyIconState;
                 })
                 return {...icon,isSelected: true}

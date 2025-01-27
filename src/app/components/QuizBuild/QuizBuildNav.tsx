@@ -1,25 +1,138 @@
 import useGlobalContextProvider, { Quiz, QuizQuestion } from '@/app/context/ContextApi';
+import { IconsData } from '@/app/Data/IconsData';
+import mongoose from 'mongoose';
 import Image from 'next/image'
 import { useRouter } from 'next/navigation';
 import React from 'react'
 import toast from 'react-hot-toast';
 
 
-const  QuizBuildNav = ({quizNavBarProps}: {quizNavBarProps : {quizQuestions: QuizQuestion[], newQuiz:Quiz}} ) => {
-  const {allQuizzes, setAllQuizzes} = useGlobalContextProvider();
-  const { newQuiz} = quizNavBarProps;
+const  QuizBuildNav = ({quizNavBarProps}: {quizNavBarProps : {quizQuestions: QuizQuestion[], newQuiz:Quiz, setNewQuiz: React.Dispatch<React.SetStateAction<Quiz>>}} ) => {
+  const {allQuizzes, setAllQuizzes, selectedQuizObj,} = useGlobalContextProvider();
+  const { newQuiz } = quizNavBarProps;
+  const {selectedQuiz} = selectedQuizObj;
   const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  function addNewQuiz(){
+  async function createNewQuiz(){
+    setIsLoading(true);
+    const url = `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/quizzes`;
+    const textIcon = IconsData.map((icon) => icon.name).find((text  ) => text === newQuiz.icon);
+    if (!textIcon) {
+      toast.error('Please select an icon');
+      setIsLoading(false);
+      return;
+    }
+     // Generate ObjectId for each question's id
+     const quizWithObjectIds = { 
+      ...newQuiz,
+      quizQuestions: newQuiz.quizQuestions.map((question) => ({
+        ...question,
+        id: new mongoose.Types.ObjectId().toString(),
+      })),
+    };
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({...quizWithObjectIds, icon: textIcon, id: new mongoose.Types.ObjectId().toString(), }),
+      cache: 'no-cache' as RequestCache,
+    };
+    
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      if (response.ok) {
+        const {id} = data; //Extract the id from the response
+
+        // Update the id property of the new Quiz
+        const updatedQuiz = {...newQuiz, id: id, icon: textIcon};
+        // setNewQuiz((prevQuiz: Quiz) => ({
+        //   ...prevQuiz,
+        //   id: id
+        // }))
+        setAllQuizzes([...allQuizzes, updatedQuiz]);
+        toast.success(data.message);
+      }
+      
+    } catch (error) {
+      setIsLoading(false);
+      return toast.error(`An error occurred while creating the quiz, ${error}`);
+
+      
+    }
+    
+    setIsLoading(false);
+
+  }
+
+  async function addNewQuiz(){
+    setIsLoading(true);
     if (newQuiz.quizTitle.trim().length === 0)
       return toast.error('Please add a title to your quiz! ');
 
     const isValid = validateQuizQuestions(newQuiz.quizQuestions);
-    if(isValid.valid === false)
+    if(isValid.valid === false){
+      setIsLoading(false);
       return toast.error(isValid.message);
+    }
      
-    setAllQuizzes([...allQuizzes, newQuiz]);
-    router.push('/');
+
+    if (selectedQuiz){
+      const updatedQuiz = [...allQuizzes]; // Assuming allQizes contains all the quizzes
+      const findIndexQuiz = updatedQuiz.findIndex((quiz) => quiz.id === newQuiz.id);
+
+      if (findIndexQuiz !== -1) updatedQuiz[findIndexQuiz] = newQuiz;
+
+      const id = updatedQuiz[findIndexQuiz].id;
+
+      const textIcon = IconsData.map((icon) => icon.name).find((text  ) => text === newQuiz.icon);
+      if (!textIcon) {
+        setIsLoading(false);
+        return toast.error('Please select an icon');
+      };
+      updatedQuiz[findIndexQuiz].icon = textIcon;
+
+      const url = `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/quizzes?id=${id}`;
+      const options = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({updateQuiz: updatedQuiz[findIndexQuiz]}),
+        cache: 'no-cache' as RequestCache,
+      };
+      try {
+        const res = await fetch(url, options);
+        if (!res.ok){
+          setIsLoading(false);
+          return toast.error('An error occurred while updating the quiz');
+        }
+
+
+        setAllQuizzes(updatedQuiz);
+        setIsLoading(false);
+        toast.success('Quiz has been saved');
+        
+      } catch (error) {
+        setIsLoading(false);
+        return toast.error(`An error occurred while updating the quiz, ${error}`);
+        
+      }
+
+
+      // setAllQuizzes((prevQuizState) => {
+      //   const updatedQuiz = [...prevQuizState];
+      //   const findIndexQuiz = updatedQuiz.findIndex((quiz) => quiz.id === newQuiz.id);
+      //   if(findIndexQuiz !== -1){
+      //     updatedQuiz[findIndexQuiz] = newQuiz;
+      //   }
+      //   return updatedQuiz;
+      // });
+    } else createNewQuiz();
+     
+    router.push('/');  // Navigate to the home page
   };
 
   return (
@@ -33,7 +146,7 @@ const  QuizBuildNav = ({quizNavBarProps}: {quizNavBarProps : {quizQuestions: Qui
       <button
       onClick={addNewQuiz} 
       className='poppins p-2 px-4 bg-green-700 rounded-md text-[#fff]'>
-        Save
+        {isLoading ? 'Saving' : 'Save'}
       </button>
     </div>
   )

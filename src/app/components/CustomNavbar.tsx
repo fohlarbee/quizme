@@ -15,7 +15,7 @@ const CustomNavbar: React.FC = () => {
     { name: 'Home', path: '/', icon: faContactBook, selected: true },
     { name: 'Contact', path: '/contact', icon: faContactBook, selected: false },
     { name: 'Blog', path: '/blog', icon: faBlog, selected: false },
-    { name: 'Searchserach', path: '/search', icon: faMagnifyingGlass, selected: false }
+    { name: 'Search', path: '/search', icon: faMagnifyingGlass, selected: false }
   ];
 
   const [pagesState, setPagesState] = React.useState<Page[]>(pages);
@@ -49,7 +49,7 @@ const CustomNavbar: React.FC = () => {
         <div
           onClick={(e) => handleClick(e, p)}
           key={i}
-          style={{ width: p.selected === true ? selectedWidth : '50px' }}
+          style={{ width: p.selected ? selectedWidth : '50px' }}
           className
           ={`singlePage flex flex-grow relative m-2 justify-center text-md rounded-lg transition-all duration-400 
             w-[150px]   ${
@@ -59,7 +59,7 @@ const CustomNavbar: React.FC = () => {
           <div className={`pageIcon absolute top-2 ${p.selected ? 'left-4' : ''}`}>
             <FontAwesomeIcon icon={p.icon}  />
           </div>
-          <span className={`mt-1 pageName ${p.selected === true ? 'selected' : ''}`} >{p.name}</span>
+          <span className={`mt-1 pageName ${p.selected ? 'selected' : ''}`} >{p.name}</span>
         </div>
       ))}
     </nav>

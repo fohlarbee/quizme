@@ -16,17 +16,41 @@ export const QuizStartQuestions = () => {
         timerObj, 
         isQuizEnded, 
         setIsQuizEnded,
-        userXpObj
+        userObj
      } = useGlobalContextProvider();
     const {timer, setTimer, setParentTimer}  = timerObj
     const { selectQuizToStart } = quizToStartObj;
-    const { setUserXp } = userXpObj;
     const quizQuestions = selectQuizToStart?.quizQuestions;
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
     const [indexOfSelectedQuiz, setIndexOfSelectedQuiz] = useState<number | null>(null);
     const  [score, setScore] = useState<number>(0);
+    const {user,  setUser} = userObj; 
     let interval: NodeJS.Timeout;
+
+    async function saveDataIntoDb(){
+
+        // Get the current quiz id
+        const id = selectQuizToStart?.id;
+        const url = `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/quizzes?id=${id}`;
+        const options = {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({updateQuizQuestions: allQuizzes[indexOfSelectedQuiz!].quizQuestions}),
+            cache: 'no-cache' as RequestCache,
+        };
+        try {
+            const req = await fetch(url, options);
+            if (!req.ok) return toast.error('An error occurred while saving the quiz data');
+        } catch (error) {
+             throw new Error(`An error occurred while saving the quiz data: ${error}`);
+
+        }
+       
+
+    }
 
     function startTimer(){
         clearInterval(interval);
@@ -64,7 +88,6 @@ export const QuizStartQuestions = () => {
                 //     (quiz) => quiz.id === selectQuizToStart!.id);
                 // setIndexOfSelectedQuiz(newQuizIndex);
             }
-            console.log(allQuizzes, indexOfSelectedQuiz);
             currentQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
             .statistics.totalAttempts += 1;
 
@@ -107,7 +130,6 @@ export const QuizStartQuestions = () => {
         setIndexOfSelectedQuiz(quizIndexFound);
 
     },[]);
-    // console.log(allQuizzes);
 
     useEffect(() => {
         if (isQuizEnded){
@@ -116,20 +138,21 @@ export const QuizStartQuestions = () => {
                 question.answeredResult = -1;
             });
             toast.custom('Quiz Ended');
+            saveDataIntoDb();
             return;
 
         }
     }, [quizQuestions, isQuizEnded]);
 
 
-    function handleNextQuestion(){
+    async function handleNextQuestion(){
         if(allQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
             .answeredResult === -1){
                 toast.custom('Please select an answer');
                 return;
         }
 
-        // update the stattistics of the question
+        // update the statistics of the question
         // *************************************
         // update the total attempts
         allQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
@@ -173,9 +196,12 @@ export const QuizStartQuestions = () => {
         // const value = allQuizzes[indexOfSelectedQuiz!].score += 1;
         setScore((prevState) => prevState + 1);
 
-        //Increment userXP
-        toast.success('Correct Answer!');
-        setUserXp((prevState) => prevState + 1);
+
+          // Print a correct answer, increment the currentIndex and move to the next question
+          toast.success('Correct Answer!');
+          await addExperience();
+          setSelectedOption(null);
+          setCurrentQuestionIndex((current) => current + 1);
         
         //is quiz ended 
         if ((!quizQuestions || currentQuestionIndex === quizQuestions.length - 1) &&
@@ -183,17 +209,14 @@ export const QuizStartQuestions = () => {
         .answeredResult === allQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
         .correctAnswer){
             toast.success('Correct Answer!');
+            await addExperience()
             setTimer(0);
             clearInterval(interval);
             setIsQuizEnded(true);
-            // console.log(isQuizEnded);
             return;
         } 
 
-        // Print a correct answer, increment the currentIndex and move to the next question
-        toast.success('Correct Answer!');
-        setSelectedOption(null);
-        setCurrentQuestionIndex((current) => current + 1);
+      
 
     }
 
@@ -215,6 +238,29 @@ export const QuizStartQuestions = () => {
 
         setAllQuizzes(currentAllQuizes);
         
+    }
+
+    async function addExperience  (){
+        const userCopy = user;
+        userCopy.experience = userCopy.experience + 1;
+
+        const url = `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/user?id=${userCopy.id}`;
+        const options = {
+            method: 'PUT',
+            headers:{
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({updateUser: userCopy})
+        }
+
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) return toast.error('An error occurred while updating the user experience');
+            setUser(userCopy); 
+        } catch (error) {
+            return toast.error(`An error occurred while updating the user experience ${error}`);
+            
+        }
     }
     return (
         <>

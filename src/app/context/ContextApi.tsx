@@ -1,8 +1,8 @@
 "use client"
 import React from "react";
 import { createContext, useContext, useState } from "react";
-import { quizzesData } from "../Data/QuizData";
-import { faCode, IconDefinition } from "@fortawesome/free-solid-svg-icons";
+ import toast from "react-hot-toast";
+import { NextResponse } from "next/server";
 export interface QuizQuestion {
     id: number;
     mainQuestion: string;
@@ -15,7 +15,7 @@ export interface QuizQuestion {
         incorrectAttempts: number;
     };
 };
-export interface User {
+export  interface User {
     id: number;
     name: string;
     isLoggedIn: boolean;
@@ -45,8 +45,8 @@ interface QuizContextType {
         setOpenIconBox: React.Dispatch<React.SetStateAction<boolean>>
     },
     selectedIconObj: {
-        selectedIcon: {faIcon: IconDefinition},
-        setSelectedIcon: React.Dispatch<React.SetStateAction<{faIcon: IconDefinition}>>
+        selectedIcon: {faIcon: string},
+        setSelectedIcon: React.Dispatch<React.SetStateAction<{faIcon: string}>>
     },
     dropDownToggleObj: {
         dropDownToggle: boolean,
@@ -67,9 +67,9 @@ interface QuizContextType {
 
   }
 
-export interface Quiz {
+export interface Quiz { 
     id: number;
-    icon: IconDefinition; 
+    icon: string; 
     quizTitle: string;
     score: number;
     quizQuestions: QuizQuestion[];
@@ -81,7 +81,7 @@ export function ContextProvider({ children }: {children: React.ReactNode}) {
     const defaultUser = {
         id: 1,
         name: 'defaultUser',
-        isLoggedIn: true,
+        isLoggedIn: false,
         experience: 0,
     }
     const [allQuizzes, setAllQuizzes] = useState<Quiz[]>([]);
@@ -91,20 +91,20 @@ export function ContextProvider({ children }: {children: React.ReactNode}) {
     const [isQuizEnded, setIsQuizEnded] = useState<boolean>(false);
     const [user, setUser] = useState<User>(defaultUser);
     const [openIconBox, setOpenIconBox] = useState<boolean>(false);
-    const [selectedIcon, setSelectedIcon] = useState({faIcon:faCode});
+    const [selectedIcon, setSelectedIcon] = useState({faIcon:'faCode'});
     const [dropDownToggle, setDropDownToggle] = useState<boolean>(false);
     const [ellipsis, setEllipsis] = useState({x: 0, y:0});
     const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
     const [userXp, setUserXp] = useState<number>(0);
 
-    React.useEffect(() => {
-        if (typeof window !== 'undefined'){
-            const saveUserData = localStorage.getItem('user');
-            const user =  saveUserData ? JSON.parse(saveUserData).experience : 0;
-            setUser((prevUser) => ({...prevUser, experience: user.experience}));
-        }
+    // React.useEffect(() => {
+    //     if (typeof window !== 'undefined'){
+    //         const saveUserData = localStorage.getItem('user');
+    //         const user =  saveUserData ? JSON.parse(saveUserData).experience : 0;
+    //         setUser((prevUser) => ({...prevUser, experience: user.experience}));
+    //     }
        
-    }, []);
+    // }, []);
      
 
  
@@ -124,12 +124,39 @@ export function ContextProvider({ children }: {children: React.ReactNode}) {
 
 
     React.useEffect(() => {
-        setAllQuizzes(quizzesData)
+        const fetchAllQuizzes = async () => {
+            const url = `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/quizzes`;
+            const options = {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                cache: 'no-cache' as RequestCache,
+            }
+            try {
+                const response = await fetch(url, options);
+                if(!response.ok){
+                    toast.error('Something went wrong');
+                    throw new Error('Something went wrong');
+                } 
+                const quizzesData = await response.json();
+                setAllQuizzes(quizzesData);
+                
+            } catch (error) {
+                return NextResponse.json({
+                    message: 'The Quizzes could not be fetched',
+                    error: (error instanceof Error) ? error.message : 'Unknown error',
+                });
+            }
+           
+
+        };
+        fetchAllQuizzes();
     }, []);
 
     React.useEffect(() => {
         if (selectedQuiz) setSelectedIcon({faIcon: selectedQuiz.icon});
-        else setSelectedIcon({faIcon: faCode});
+        else setSelectedIcon({faIcon: 'faCode'});
 
         }, [selectedQuiz]);
     
@@ -139,6 +166,46 @@ export function ContextProvider({ children }: {children: React.ReactNode}) {
             experience: userXp
         }))
     }, [userXp]);
+
+
+    React.useEffect(() => {
+        const fetchUser = async () => {
+            const url = `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/user`;
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(user),
+                cache: 'no-cache' as RequestCache,
+            }
+            try {
+                const response = await fetch(url, options);
+                if(!response.ok){
+                    toast.error('Something went wrong');
+                    throw new Error('Something went wrong');
+                } 
+                const userData = await response.json();
+                
+
+                if (userData.mssg === 'User Already Exists'){
+                    setUser({...userData.user, id: userData.user._id,});
+                } else    setUser({...userData.user, id: userData.user._id});
+
+                if (typeof window !== 'undefined'){
+                    localStorage.setItem('user', JSON.stringify(user))
+                }
+                
+            } catch (error) {
+                return NextResponse.json({
+                    message: 'The User could not be fetched',
+                    error: (error instanceof Error) ? error.message : 'Unknown error',
+                });
+            }
+        }
+
+        fetchUser();
+    }, []);
         
     return (
         <GlobalContext.Provider value={{
@@ -166,4 +233,4 @@ export default function useGlobalContextProvider(){
         throw new Error('useGlobalContextProvider must be used a{}ithin a QuizProvider');
       }
     return allQuizzes;
-}
+} 

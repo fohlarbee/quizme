@@ -46,7 +46,6 @@ const ScoreComponent: React.FC<ScoreComponentProps> = ({
             setSelectedOption(null);
             setScore(0);
             setIsQuizEnded(false);
-            // console.log(selectQuizToStart);
     }
 
   return (

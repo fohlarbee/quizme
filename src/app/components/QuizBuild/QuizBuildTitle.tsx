@@ -1,5 +1,5 @@
 import useGlobalContextProvider from '@/app/context/ContextApi';
-import { faCode } from '@fortawesome/free-solid-svg-icons';
+import { IconsData } from '@/app/Data/IconsData';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 
@@ -8,7 +8,7 @@ interface QuizBuildTitleProps {
     focus: boolean;
     setFocusFirst: React.Dispatch<React.SetStateAction<boolean>>;
   },
-  onChangeQuizTitle: (value: string) => void
+  onChangeQuizTitle: (value: string) => void,
 }
 
 const QuizBuildTitle: React.FC<QuizBuildTitleProps> = ({ focusProp, onChangeQuizTitle }) => {
@@ -21,16 +21,19 @@ const QuizBuildTitle: React.FC<QuizBuildTitleProps> = ({ focusProp, onChangeQuiz
   });
   const {focus} = focusProp;
   const quizTileRef = React.useRef<HTMLInputElement>(null);
+
+
    
 
 
-  // console.log('quiz', quiz);
-
+  const matchedIcon = selectedIcon ? IconsData.find((iconData) => iconData.name === selectedIcon.faIcon) : null;
+  if (selectedIcon && !matchedIcon) {
+    console.warn(`No matching icon found for iconName: ${selectedIcon.faIcon}`);
+  }
   function handleTextInputChange(value: string){
     setQuizTitle(value); 
     onChangeQuizTitle(value);
-    // quiz.quizTitle = value;
-    // console.log('quiz', quiz);
+  
   }
 
   React.useEffect(() => {
@@ -38,7 +41,7 @@ const QuizBuildTitle: React.FC<QuizBuildTitleProps> = ({ focusProp, onChangeQuiz
       quizTileRef.current?.focus();
       // setFocusFirst(false);
     }
-  }, [] );
+  }, [focus])
   return (
     <div className='p-3 flex justify-between border border-[#15803d] rounded-md shadow-md border-opacity-5 overflow-x-auto'>
       <div className='flex gap-2'>
@@ -58,13 +61,16 @@ const QuizBuildTitle: React.FC<QuizBuildTitleProps> = ({ focusProp, onChangeQuiz
         />
 
       </div> 
-      <FontAwesomeIcon
-      onClick={() => setOpenIconBox(true)}
-      icon={selectedIcon?.faIcon || faCode}
-      height={40}
-      width={40}
-      className='text-[#fff] p-2 rounded-md bg-[#15803d] cursor-pointer'
-      />
+       {matchedIcon && (
+                
+            <FontAwesomeIcon
+             onClick={() => setOpenIconBox(true)}
+             icon={matchedIcon.faIcon} 
+             width={40} 
+             height={40} 
+             className='text-[#fff] p-2 rounded-md bg-[#15803d] cursor-pointer' />
+        )}
+
 
     </div>
   )

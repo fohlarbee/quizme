@@ -5,6 +5,7 @@ import useGlobalContextProvider from '../context/ContextApi';
   
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { NextResponse } from 'next/server';
 
 
 interface MenuItems {
@@ -45,19 +46,44 @@ const DropDown = () => {
         }
     }, [dropDownToggle, setDropDownToggle]);
 
-    function deleteQuiz(){
+    async function deleteQuiz(){
       const updatedQuiz = allQuizzes.filter((q) => {
         if (q.id !== selectedQuiz!.id ) return q; 
       });
 
-      setAllQuizzes(updatedQuiz);
-      toast.success('Quiz Deleted Successfully');
-      setIsDialogOpen(false);
-      setSelectedQuiz(null);
+      const url = `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/quizzes/?id=${selectedQuiz!.id}`;
+      const options = {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-cache' as RequestCache,
+      };
+      try {
+        const res = await fetch(url, options);
+        if (!res.ok){
+         return toast.error('Quiz could not be deleted'); 
+        }
+        setAllQuizzes(updatedQuiz);
+        toast.success('Quiz Deleted Successfully');
+        setIsDialogOpen(false);
+        setSelectedQuiz(null);
+        
+      } catch (error) {
+        return NextResponse.json({
+          message: 'The Quizzes could not be fetched',
+          error: (error instanceof Error) ? error.message : 'Unknown error',
+        })
+        
+      }
+     
+
+
+
     }
 
 
-    function handleClickItem(item: MenuItems){
+    function handleClickItem(item: MenuItems){ 
       if(item.name === 'modify') router.push('/quiz-build');
       if(item.name === 'Delete') {
       setIsDialogOpen(true);
