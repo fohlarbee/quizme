@@ -1,0 +1,84 @@
+.featureAreaRoot{
+    margin-top: 40px;
+    padding: 40px;
+
+}
+.featureAreaContainer{
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+}
+
+.featureAreaHeader{
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+}
+.levelCardRoot{
+    width:200px;
+    height: 200px;
+    border-radius: 50px;
+
+    /* border: 1px solid gray; */
+}
+
+.featureAreaCards{
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.levelCardContainer{
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #f3f3f3;
+    gap: 20px;
+    box-shadow: 0px 0px 10px 0px #f3f3f3;
+    
+
+
+
+}
+.levelCardImageContainer{
+    width: 200px;
+    object-fit: cover;
+
+}
+.levelCardImage{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.levelCardHeader{
+    font-weight: bold;
+    font-size:18px;
+    margin-top: 10px;
+    color: #15803d;
+    text-align: center;
+}
+.levelCardText{
+    opacity: 0.6;
+    text-align: center;
+    font-size: 14px;
+    width: 100%;
+}
+
+@media  screen and  (max-width: 764px){
+    .featureAreaCards{
+        display:flex;
+        flex-direction: column;
+        gap: 80px;
+        /* justify-content: center; */
+        align-items: center;
+    }
+    .levelCardImageContainer{
+        width: 100%;
+
+    }
+    /* .levelCardContainer{
+        width: 100%;
+        padding: 20px;
+
+    } */
+}
