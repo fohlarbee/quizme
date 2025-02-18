@@ -89,7 +89,7 @@ const ScoreComponent: React.FC<ScoreComponentProps> = ({
 
             <Link 
               className='text-[12px] text-green-700 hover:text-green-400 underline mb-5'
-              href='/'> Select another quiz
+              href='/quiz'> Select another quiz
 
             </Link>
 

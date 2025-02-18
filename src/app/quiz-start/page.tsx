@@ -14,7 +14,7 @@ import { QuizStartQuestions } from '../components/QuizStartQuestions';
 
     useEffect(() => {
         if (selectQuizToStart === null){
-            router.push('/');
+            router.push('/quiz');
         }
     }, []);
 

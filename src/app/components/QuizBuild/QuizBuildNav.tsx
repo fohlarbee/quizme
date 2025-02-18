@@ -132,7 +132,7 @@ const  QuizBuildNav = ({quizNavBarProps}: {quizNavBarProps : {quizQuestions: Qui
       // });
     } else createNewQuiz();
      
-    router.push('/');  // Navigate to the home page
+    router.push('/quiz');  // Navigate to the home page
   };
 
   return (

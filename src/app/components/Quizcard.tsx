@@ -15,7 +15,11 @@ function successRate(quiz: Quiz) {
     correctQuestions += question.statistics.correctAttempts;
   });
 
-  successRate = Math.ceil((correctQuestions / totalAttempts) * 100);
+  if (totalAttempts > 0) {
+    successRate = Math.ceil((correctQuestions / totalAttempts) * 100);
+  } else {
+    successRate = 0;
+  }
   return successRate;
 }
 // const iconMap: { [key: string]: IconDefinition } = {

@@ -28,7 +28,6 @@ export const QuizStartQuestions = () => {
     const {user,  setUser} = userObj; 
     let interval: NodeJS.Timeout;
 
-    console.log('what I need',quizQuestions, currentQuestionIndex);
 
     async function saveDataIntoDb(){
 
@@ -43,12 +42,11 @@ export const QuizStartQuestions = () => {
             body: JSON.stringify({updateQuizQuestions: allQuizzes[indexOfSelectedQuiz!].quizQuestions}),
             cache: 'no-cache' as RequestCache,
         };
-        console.log(allQuizzes[indexOfSelectedQuiz!].quizQuestions);
         try {
             const req = await fetch(url, options);
             if (!req.ok) return toast.error('An error occurred while saving the quiz data');
         } catch (error) {
-            console.log(error  );
+            console.log(error );
             return toast.error('An error occurred while saving the quiz data');
 
         }
@@ -92,7 +90,6 @@ export const QuizStartQuestions = () => {
                 //     (quiz) => quiz.id === selectQuizToStart!.id);
                 // setIndexOfSelectedQuiz(newQuizIndex);
             }
-            console.log(allQuizzes, indexOfSelectedQuiz);
             currentQuizzes[indexOfSelectedQuiz!].quizQuestions[currentQuestionIndex]
             .statistics.totalAttempts += 1;
 
@@ -135,7 +132,6 @@ export const QuizStartQuestions = () => {
         setIndexOfSelectedQuiz(quizIndexFound);
 
     },[]);
-    // console.log(allQuizzes);
 
     useEffect(() => {
         if (isQuizEnded){
@@ -248,10 +244,8 @@ export const QuizStartQuestions = () => {
     }
 
     async function addExperience  (){
-        console.log('add exp running');
         const userCopy = user;
         userCopy.experience = userCopy.experience + 1;
-        console.log('newUserCopy, userCopy');
 
         const url = `${process.env.NEXT_PUBLIC_CLIENT_URL}/api/user?id=${userCopy.id}`;
         const options = {
@@ -265,7 +259,6 @@ export const QuizStartQuestions = () => {
         try {
             const response = await fetch(url, options);
             if (!response.ok) return toast.error('An error occurred while updating the user experience');
-            console.log('new user copy', userCopy);
             setUser(userCopy); 
         } catch (error) {
             console.log(error);

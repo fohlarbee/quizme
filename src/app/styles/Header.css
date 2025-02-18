@@ -1,0 +1,129 @@
+
+.header{
+    border: 1px solid gray;
+    display: flex;
+    justify-content: space-between;
+    padding:17px;
+
+}
+.logoRootContainer {
+    text-align: center;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: start;
+    flex: 1;
+    /* background-color: red; */
+
+}
+.logo{
+    font-size:  40px;
+    cursor: pointer;
+}
+.websitename{
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: 300;
+    font-family: "Popins", sans-serif; 
+}
+
+.mainMenuRootContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  /* background-color: red; */
+
+    
+}
+.mainMenuAndLoginButton{
+    display: flex;
+    flex: 2;
+    justify-content: space-between ;
+}
+.singleMenuItem{
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.loginButtonContainer {
+   
+}
+
+.loginButton{
+    padding:10px;
+    padding-left:  30px;
+    padding-right: 30px;
+    border: 1px solid #fff;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+    transition: 0.3s ease-in-out;
+    background: #15803d;
+    color: #fff;
+    font-family: "Popins", sans-serif;
+    justify-content: flex-start;
+ 
+}
+.loginButton:hover{
+    background: #fff;
+    color: #15803d;
+    border: 1px solid #15803d;
+}
+.barsIconX{
+    display: none;
+}
+.barsIcon{
+    display: none;
+}
+
+@media screen and (max-width:940px) {
+    .mainMenuAndLoginButton{
+        flex:2
+    }
+
+}
+
+@media screen and (max-width:838px) {
+    .websitename{
+        display: none;
+    }
+}
+
+@media screen and (max-width: 770px){
+    .websitename{
+        display: none;
+    }
+    .mainMenuAndLoginButton{
+        padding-top: 30px;
+        padding-bottom: 30px;
+        position: absolute;
+        background-color: rgb(254, 254,254);
+        flex-direction: column;
+        width: 100%;
+        left: 0px;
+        top:80px;
+        gap: 20px;
+        align-items: center;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+        display: none;
+        color: #15803d;
+        flex: column;
+        box-shadow: 0px 6px 7px rgb(0,0,0,0.2);
+    } 
+
+    .mainMenuAndLoginButton.open{
+        display: flex;
+     
+    }
+    .mainMenuRootContainer{
+        flex-direction: column;
+    }
+    .barsIcon{
+        display: block;
+        cursor: pointer;
+    }
+   
+}
